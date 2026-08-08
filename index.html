@@ -1,26 +1,22 @@
 <!DOCTYPE html>
-<html lang="id" class="dark scroll-smooth">
+<html lang="en" class="dark scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bayu Andika - Operations & IT Support</title>
+    <title>Bayu Andika - Digital Product Designer</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- AOS Animation CSS -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
-    <!-- Tailwind Config for Exact Colors & Fonts -->
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        kexBg: '#0a0a0a',
-                        kexCard: '#121212',
-                        kexBorder: '#27272a',
+                        kexBg: '#080808',
+                        kexCard: '#111111',
+                        kexBorder: '#222222',
                         kexMuted: '#a1a1aa',
                         kexDim: '#52525b'
                     },
@@ -33,24 +29,21 @@
         }
     </script>
 
-    <!-- Google Fonts: Inter & Space Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
     <style>
         body {
-            background-color: #0a0a0a;
+            background-color: #080808;
             color: #f4f4f5;
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Hide Scrollbar for cleaner look */
         ::-webkit-scrollbar { display: none; }
 
-        /* Exact Kexsam Underline Hover Effect */
         .kex-link {
             position: relative;
             display: inline-block;
@@ -73,7 +66,6 @@
             transform-origin: bottom left;
         }
 
-        /* Subtle image zoom */
         .kex-image-container { overflow: hidden; }
         .kex-image-container img, .kex-image-container .mockup-placeholder {
             transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1);
@@ -86,219 +78,40 @@
 </head>
 <body class="min-h-screen px-6 sm:px-12 md:px-24 py-8 max-w-[1600px] mx-auto selection:bg-white selection:text-black">
 
-    <!-- ================= HEADER ================= -->
     <header class="flex flex-col md:flex-row justify-between items-start md:items-center py-4 mb-20 font-mono text-[11px] sm:text-xs tracking-tight text-kexMuted" data-aos="fade-down" data-aos-duration="1200">
         <a href="#" class="flex items-center gap-2 text-white hover:opacity-70 transition-opacity mb-4 md:mb-0 uppercase tracking-widest">
-            Bayu Andika <span class="text-kexDim normal-case tracking-normal">( IT / OPR )</span>
+            Bayu Andika <span class="text-kexDim normal-case tracking-normal">( 199● ) – 2026</span>
         </a>
         
         <nav class="flex flex-wrap items-center gap-8">
-            <a href="#experience" class="kex-link text-white">Experience <span class="text-kexDim ml-1">( 01 )</span></a>
+            <a href="#work" class="kex-link text-white">Work <span class="text-kexDim ml-1">( 01 )</span></a>
             <a href="#about" class="kex-link text-white">About <span class="text-kexDim ml-1">( 02 )</span></a>
-            <a href="#contact" class="kex-link text-white">Contact <span class="text-kexDim ml-1">( 03 )</span></a>
+            <a href="#playground" class="kex-link text-white">Playground <span class="text-kexDim ml-1">( 03 )</span></a>
         </nav>
     </header>
 
-    <!-- ================= HERO SECTION ================= -->
     <section class="pb-32 border-b border-kexBorder">
         <h1 class="text-4xl sm:text-6xl md:text-[5.5rem] font-medium leading-[1.05] tracking-tight text-white mb-12" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="100">
-            Maintaining <span class="text-kexDim italic font-light">( hardware )</span>, 
-            <span class="text-kexDim italic font-light">( systems )</span>, <br class="hidden md:block">
-            <span class="text-kexDim italic font-light">( structure )</span> and 
-            <span class="text-kexDim italic font-light">( operations )</span>
-        </h1>
-        
-        <!-- Metadata Pills -->
-        <div class="flex flex-wrap items-center gap-3 font-mono text-[10px] sm:text-[11px] text-kexMuted" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="300">
-            <div class="border border-kexBorder px-4 py-2 rounded-full bg-kexCard flex items-center gap-2">
-                <span id="live-clock">Loading clock...</span>
-            </div>
-            <div class="border border-kexBorder px-4 py-2 rounded-full">
-                7.4797° S, 110.2177° E (Magelang)
-            </div>
-            <div class="border border-kexBorder px-4 py-2 rounded-full text-white flex items-center gap-2">
-                <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                Software Engineering Alumnus
-            </div>
-        </div>
-    </section>
-
-    <!-- ================= FEATURED EXPERIENCE ================= -->
-    <section id="experience" class="py-32 border-b border-kexBorder">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-20 gap-4" data-aos="fade-up">
-            <h2 class="flex items-center gap-3 text-2xl font-medium text-white">
-                <span class="text-xl">✨</span> Featured Experience
-            </h2>
-            <span class="font-mono text-[11px] text-kexMuted uppercase tracking-widest">Professional Journey</span>
-        </div>
-
-        <!-- Experience 1 -->
-        <div class="group cursor-pointer mb-32" data-aos="fade-up" data-aos-delay="100">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
-                <div>
-                    <h3 class="text-3xl text-white font-medium mb-3 group-hover:text-kexMuted transition-colors duration-500">Retail Operations & POS System</h3>
-                    <p class="font-mono text-xs text-kexMuted">PT INDOMARCO PRISMATAMA — Feb 2025 to Feb 2026</p>
-                </div>
-                <span class="font-mono text-sm text-kexDim">( 01 )</span>
-            </div>
-            
-            <div class="kex-image-container w-full aspect-[4/3] md:aspect-[21/9] bg-kexCard border border-kexBorder rounded-2xl relative">
-                <div class="mockup-placeholder absolute inset-0 flex flex-col items-center justify-center text-kexDim font-mono text-xs bg-gradient-to-b from-[#18181b] to-black p-8 text-center">
-                    <span class="mb-4 text-white">[ STORE OPERATIONS ]</span>
-                    <p class="max-w-xl text-kexMuted mb-4">Mengoperasikan sistem kasir (POS), memanajemen inventory database (FIFO/FEFO), dan memastikan kelancaran alur restock dari gudang ke area display.</p>
-                    <span class="px-3 py-1 border border-kexBorder rounded text-[10px]">Inventory & Transaction Accuracy</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Experience 2 -->
-        <div class="group cursor-pointer mb-32" data-aos="fade-up" data-aos-delay="100">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
-                <div>
-                    <h3 class="text-3xl text-white font-medium mb-3 group-hover:text-kexMuted transition-colors duration-500">IT Support & Hardware Maintenance</h3>
-                    <p class="font-mono text-xs text-kexMuted">RESTU COMPUTER — Nov 2021 to Feb 2022</p>
-                </div>
-                <span class="font-mono text-sm text-kexDim">( 02 )</span>
-            </div>
-            
-            <div class="kex-image-container w-full aspect-[4/3] md:aspect-[21/9] bg-kexCard border border-kexBorder rounded-2xl relative">
-                <div class="mockup-placeholder absolute inset-0 flex flex-col items-center justify-center text-kexDim font-mono text-xs bg-gradient-to-b from-[#18181b] to-black p-8 text-center">
-                    <span class="mb-4 text-white">[ TECHNICAL SUPPORT ]</span>
-                    <p class="max-w-xl text-kexMuted mb-4">Membongkar dan merakit komponen PC/Laptop, melakukan upgrade hardware (RAM/Storage), serta instalasi ulang Sistem Operasi dan software pendukung.</p>
-                    <span class="px-3 py-1 border border-kexBorder rounded text-[10px]">Troubleshooting & Assembly</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ================= ABOUT SECTION ================= -->
-    <section id="about" class="py-32 border-b border-kexBorder">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8">
-            
-            <!-- Left Text -->
-            <div class="lg:col-span-6" data-aos="fade-up">
-                <p class="text-xl sm:text-2xl text-kexMuted font-light leading-relaxed mb-10 max-w-2xl">
-                    Bayu is a versatile professional with a foundation in Software Engineering and hands-on experience across IT support, retail operations, and administration. He brings precision to operational workflows, ensuring structural efficiency, strict SOP compliance, and quality service.
-                </p>
-                <div class="flex flex-col gap-2 font-mono text-xs text-kexDim">
-                    <span>Education:</span>
-                    <span class="text-white">SMK Muhammadiyah 1 Muntilan (Rekayasa Perangkat Lunak)</span>
-                </div>
-            </div>
-            
-            <!-- Right Lists -->
-            <div class="lg:col-span-5 lg:col-start-8 grid grid-cols-2 gap-10 font-mono text-[11px] sm:text-xs" data-aos="fade-up" data-aos-delay="200">
-                <div>
-                    <span class="text-white block mb-6 uppercase border-b border-kexBorder pb-3">Work History</span>
-                    <ul class="space-y-4 text-kexMuted">
-                        <li>Store Crew - Indomarco</li>
-                        <li>Admin - BMC Motor</li>
-                        <li>Operator - Mitra Metal Perkasa</li>
-                        <li>IT Support - Restu Computer</li>
-                    </ul>
-                </div>
-                <div>
-                    <span class="text-white block mb-6 uppercase border-b border-kexBorder pb-3">Capabilities</span>
-                    <ul class="space-y-4 text-kexMuted">
-                        <li>Hardware Assembly & OS</li>
-                        <li>Retail POS System</li>
-                        <li>Data Administration</li>
-                        <li>Production SOP & QC</li>
-                    </ul>
-                </div>
-            </div>
-            
-        </div>
-    </section>
-
-    <!-- ================= FOOTER ================= -->
-    <footer id="contact" class="pt-32 pb-12" data-aos="fade-up">
-        <h2 class="text-4xl sm:text-5xl md:text-6xl text-white font-medium mb-16 max-w-3xl leading-[1.1] tracking-tight">
-            Looking for a structured and highly adaptable professional?
-        </h2>
-        
-        <a href="mailto:bayuandk4@gmail.com" class="inline-block text-xl sm:text-3xl font-mono text-kexMuted hover:text-white transition-colors duration-500 mb-8">
-            / bayuandk4@gmail.com
-        </a>
-        <br>
-        <a href="https://wa.me/6287881820662" target="_blank" class="inline-block text-lg sm:text-2xl font-mono text-kexDim hover:text-green-500 transition-colors duration-500 mb-32">
-            → +62 878 8182 0662
-        </a>
-
-        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-10 font-mono text-[11px] text-kexMuted uppercase tracking-widest">
-            <div class="flex flex-wrap gap-8">
-                <a href="#" class="kex-link text-white">Top</a>
-                <a href="#experience" class="kex-link text-white">Experience</a>
-                <a href="#about" class="kex-link text-white">About</a>
-            </div>
-            
-            <div class="flex flex-wrap gap-8">
-                <a href="https://linkedin.com/in/bayu-andika2003/" target="_blank" class="kex-link text-white">LinkedIn</a>
-                <a href="mailto:bayuandk4@gmail.com" class="kex-link text-white">Email</a>
-            </div>
-
-            <div class="text-kexDim">
-                © <span id="year">2026</span> Bayu Andika
-            </div>
-        </div>
-    </footer>
-
-    <!-- Scripts -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script>
-        // Init AOS Animation with Kexsam-style timing
-        AOS.init({
-            duration: 1000, 
-            easing: 'ease-out-cubic',
-            once: true, 
-            offset: 80 
-        });
-
-        // Exact Kexsam Clock Format
-        function updateClock() {
-            const now = new Date();
-            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            const dayName = days[now.getDay()];
-            const day = String(now.getDate()).padStart(2, '0');
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const year = now.getFullYear();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-
-            const formatted = `▩ ${dayName} ${day} ( ${month} ) ${year} ${hours}:${minutes}:${seconds}`;
-            const clockEl = document.getElementById('live-clock');
-            if (clockEl) clockEl.textContent = formatted;
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-        
-        // Auto Year
-        document.getElementById('year').textContent = new Date().getFullYear();
-    </script>
-</body>
-</html>
+            Crafting <span class="text-kexDim italic font-light">( form )</span>, 
             <span class="text-kexDim italic font-light">( function )</span>, <br class="hidden md:block">
             <span class="text-kexDim italic font-light">( system )</span> and 
             <span class="text-kexDim italic font-light">( experience )</span>
         </h1>
         
-        <!-- Kexsam Style Metadata Pills -->
         <div class="flex flex-wrap items-center gap-3 font-mono text-[10px] sm:text-[11px] text-kexMuted" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="300">
             <div class="border border-kexBorder px-4 py-2 rounded-full bg-kexCard flex items-center gap-2">
                 <span id="live-clock">Loading clock...</span>
             </div>
             <div class="border border-kexBorder px-4 py-2 rounded-full">
-                7.7956° S, 110.3695° E
+                51.5072° N, 0.1276° W
             </div>
-            <div class="border border-kexBorder px-4 py-2 rounded-full text-white flex items-center gap-2">
-                <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+            <div class="border border-kexBorder px-4 py-2 rounded-full text-white flex items-center gap-2 bg-kexCard">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#f4f4f5] animate-pulse"></span>
                 ( Digital ) Design + Strategy
             </div>
         </div>
     </section>
 
-    <!-- ================= SELECTED WORKS ================= -->
     <section id="work" class="py-32 border-b border-kexBorder">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-20 gap-4" data-aos="fade-up">
             <h2 class="flex items-center gap-3 text-2xl font-medium text-white">
@@ -307,7 +120,6 @@
             <a href="#" class="kex-link font-mono text-[11px] text-kexMuted uppercase tracking-widest">See all available works</a>
         </div>
 
-        <!-- Project 1 -->
         <div class="group cursor-pointer mb-32" data-aos="fade-up" data-aos-delay="100">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
                 <div>
@@ -318,47 +130,60 @@
             </div>
             
             <div class="kex-image-container w-full aspect-[4/3] md:aspect-[21/9] bg-kexCard border border-kexBorder rounded-2xl relative">
-                <!-- Mockup Box (Replace this div with your <img> tag) -->
-                <div class="mockup-placeholder absolute inset-0 flex flex-col items-center justify-center text-kexDim font-mono text-xs bg-gradient-to-b from-[#18181b] to-black">
-                    <span class="mb-2">[ IMAGE PREVIEW AREA ]</span>
-                    <span class="px-3 py-1 border border-kexBorder rounded text-[10px]">Insert your UI Mockup here</span>
+                <div class="mockup-placeholder absolute inset-0 flex flex-col items-center justify-center text-kexDim font-mono text-xs bg-[#111111]">
+                    <span>[ IMAGE PREVIEW ]</span>
                 </div>
             </div>
         </div>
 
-        <!-- Project 2 -->
         <div class="group cursor-pointer mb-32" data-aos="fade-up" data-aos-delay="100">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
                 <div>
-                    <h3 class="text-3xl text-white font-medium mb-3 group-hover:text-kexMuted transition-colors duration-500">3S Money Design System</h3>
+                    <h3 class="text-3xl text-white font-medium mb-3 group-hover:text-kexMuted transition-colors duration-500">Nothing X (2025)</h3>
                     <p class="font-mono text-xs text-kexMuted">Designed for cohesion. Built for expansion</p>
                 </div>
                 <span class="font-mono text-sm text-kexDim">( 02 )</span>
             </div>
             
             <div class="kex-image-container w-full aspect-[4/3] md:aspect-[21/9] bg-kexCard border border-kexBorder rounded-2xl relative">
-                <div class="mockup-placeholder absolute inset-0 flex flex-col items-center justify-center text-kexDim font-mono text-xs bg-gradient-to-b from-[#18181b] to-black">
-                    <span class="mb-2">[ IMAGE PREVIEW AREA ]</span>
+                <div class="mockup-placeholder absolute inset-0 flex flex-col items-center justify-center text-kexDim font-mono text-xs bg-[#111111]">
+                    <span>[ IMAGE PREVIEW ]</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="group cursor-pointer mb-32" data-aos="fade-up" data-aos-delay="100">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
+                <div>
+                    <h3 class="text-3xl text-white font-medium mb-3 group-hover:text-kexMuted transition-colors duration-500">3S Money Design System</h3>
+                    <p class="font-mono text-xs text-kexMuted">Foundations of the first-ever design system for 3S Money</p>
+                </div>
+                <span class="font-mono text-sm text-kexDim">( 03 )</span>
+            </div>
+            
+            <div class="kex-image-container w-full aspect-[4/3] md:aspect-[21/9] bg-kexCard border border-kexBorder rounded-2xl relative">
+                <div class="mockup-placeholder absolute inset-0 flex flex-col items-center justify-center text-kexDim font-mono text-xs bg-[#111111]">
+                    <span>[ IMAGE PREVIEW ]</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ================= ABOUT SECTION ================= -->
     <section id="about" class="py-32 border-b border-kexBorder">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8">
             
-            <!-- Left Text -->
             <div class="lg:col-span-6" data-aos="fade-up">
                 <p class="text-xl sm:text-2xl text-kexMuted font-light leading-relaxed mb-10 max-w-2xl">
-                    Bayu is a product designer working on scalable user experiences for complex, cross-platform products. He brings clarity to ambiguous product challenges, aligning user needs, business goals, and technical constraints into structured, impactful solutions.
+                    Bayu is a London-based product designer working on scalable user experiences for complex, cross-platform products. He brings clarity to ambiguous product challenges, aligning user needs, business goals, and technical constraints into structured, impactful solutions.
+                </p>
+                <p class="text-xl sm:text-2xl text-kexMuted font-light leading-relaxed mb-10 max-w-2xl">
+                    At Nothing Technology, he leads and contributes across Nothing OS, IoT, web, and Android/iOS products. He drives work from strategy through execution, ensuring alignment and scalable outcomes across the product ecosystem.
                 </p>
                 <a href="#" class="kex-link font-mono text-xs text-white uppercase tracking-widest">
-                    Learn more →
+                    Learn more ↗
                 </a>
             </div>
             
-            <!-- Right Lists -->
             <div class="lg:col-span-5 lg:col-start-8 grid grid-cols-2 gap-10 font-mono text-[11px] sm:text-xs" data-aos="fade-up" data-aos-delay="200">
                 <div>
                     <span class="text-white block mb-6 uppercase border-b border-kexBorder pb-3">Experience</span>
@@ -383,7 +208,6 @@
         </div>
     </section>
 
-    <!-- ================= FOOTER ================= -->
     <footer id="contact" class="pt-32 pb-12" data-aos="fade-up">
         <h2 class="text-4xl sm:text-5xl md:text-6xl text-white font-medium mb-16 max-w-3xl leading-[1.1] tracking-tight">
             Looking for a design partner to elevate your digital presence?
@@ -404,20 +228,18 @@
             <div class="flex flex-wrap gap-8">
                 <a href="#" class="kex-link text-white">LinkedIn</a>
                 <a href="#" class="kex-link text-white">Instagram</a>
-                <a href="#" class="kex-link text-white">GitHub</a>
+                <a href="#" class="kex-link text-white">Unsplash</a>
                 <a href="#" class="kex-link text-white">X</a>
             </div>
 
             <div class="text-kexDim">
-                © 2024 - <span id="year">2026</span> Bayu Andika
+                © 2023 - <span id="year">2026</span> Bayu Andika
             </div>
         </div>
     </footer>
 
-    <!-- Scripts -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        // Init AOS Animation with Kexsam-style timing
         AOS.init({
             duration: 1000, 
             easing: 'ease-out-cubic',
@@ -425,7 +247,6 @@
             offset: 80 
         });
 
-        // Exact Kexsam Clock Format
         function updateClock() {
             const now = new Date();
             const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -437,7 +258,6 @@
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
 
-            // Format: ▩ Sun 09 ( 08 ) 2026 02:06:25
             const formatted = `▩ ${dayName} ${day} ( ${month} ) ${year} ${hours}:${minutes}:${seconds}`;
             const clockEl = document.getElementById('live-clock');
             if (clockEl) clockEl.textContent = formatted;
@@ -445,7 +265,6 @@
         setInterval(updateClock, 1000);
         updateClock();
         
-        // Auto Year
         document.getElementById('year').textContent = new Date().getFullYear();
     </script>
 </body>
