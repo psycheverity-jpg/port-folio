@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root{
   --bg:#07070C; --ink:#F5F3FF; --ink-soft:#A7A3C4;
   --c1:#FF3D7F; --c2:#FFB13D; --c3:#3DFFB5; --c4:#7C5CFF; --c5:#3DD6FF;
