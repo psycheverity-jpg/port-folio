@@ -22,18 +22,14 @@ function Canvas3D() {
     };
     window.addEventListener('resize', handleResize);
 
-    const numPoints = 40;
-    const points = [];
-    for (let i = 0; i < numPoints; i++) {
-      points.push({
-        x: (Math.random() - 0.5) * width,
-        y: (Math.random() - 0.5) * height,
-        z: (Math.random() - 0.5) * 400,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: (Math.random() - 0.5) * 0.4,
-        vz: (Math.random() - 0.5) * 0.4,
-      });
-    }
+    const points = Array.from({ length: 35 }, () => ({
+      x: (Math.random() - 0.5) * width,
+      y: (Math.random() - 0.5) * height,
+      z: (Math.random() - 0.5) * 350,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      vz: (Math.random() - 0.5) * 0.4,
+    }));
 
     const render = () => {
       ctx.clearRect(0, 0, width, height);
@@ -42,20 +38,14 @@ function Canvas3D() {
       const cy = height / 2;
 
       points.forEach((p) => {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.z += p.vz;
-
+        p.x += p.vx; p.y += p.vy; p.z += p.vz;
         if (Math.abs(p.x) > width / 1.5) p.vx *= -1;
         if (Math.abs(p.y) > height / 1.5) p.vy *= -1;
         if (Math.abs(p.z) > 300) p.vz *= -1;
 
         const scale = fov / (fov + p.z + 300);
-        const projX = p.x * scale + cx;
-        const projY = p.y * scale + cy;
-
         ctx.beginPath();
-        ctx.arc(projX, projY, 1.5 * scale, 0, Math.PI * 2);
+        ctx.arc(p.x * scale + cx, p.y * scale + cy, 1.5 * scale, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255, 255, 255, ${0.15 * scale})`;
         ctx.fill();
       });
@@ -67,24 +57,22 @@ function Canvas3D() {
           const dz = points[i].z - points[j].z;
           const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-          if (dist < 160) {
+          if (dist < 150) {
             const s1 = fov / (fov + points[i].z + 300);
             const s2 = fov / (fov + points[j].z + 300);
             ctx.beginPath();
             ctx.moveTo(points[i].x * s1 + cx, points[i].y * s1 + cy);
             ctx.lineTo(points[j].x * s2 + cx, points[j].y * s2 + cy);
-            ctx.strokeStyle = `rgba(255, 255, 255, ${0.05 * (1 - dist / 160)})`;
+            ctx.strokeStyle = `rgba(255, 255, 255, ${0.05 * (1 - dist / 150)})`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
         }
       }
-
       animationFrameId = requestAnimationFrame(render);
     };
 
     render();
-
     return () => {
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationFrameId);
@@ -98,28 +86,21 @@ function Canvas3D() {
 function TiltCard3D({ children, className = '' }) {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  const rotateX = useTransform(y, [-80, 80], [8, -8]);
-  const rotateY = useTransform(x, [-80, 80], [-8, 8]);
-
-  const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    x.set(e.clientX - (rect.left + rect.width / 2));
-    y.set(e.clientY - (rect.top + rect.height / 2));
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
+  const rotateX = useTransform(y, [-80, 80], [6, -6]);
+  const rotateY = useTransform(x, [-80, 80], [-6, 6]);
 
   return (
     <motion.div
       style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      onMouseMove={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        x.set(e.clientX - (rect.left + rect.width / 2));
+        y.set(e.clientY - (rect.top + rect.height / 2));
+      }}
+      onMouseLeave={() => { x.set(0); y.set(0); }}
       className={`transition-transform duration-200 ease-out ${className}`}
     >
-      <div style={{ transform: 'translateZ(15px)' }}>{children}</div>
+      <div style={{ transform: 'translateZ(10px)' }}>{children}</div>
     </motion.div>
   );
 }
@@ -191,14 +172,14 @@ export default function Portfolio() {
 
         {/* WORK EXPERIENCE */}
         <section id="experience" className="py-24 border-b border-kexBorder">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-50px' }} variants={fadeInUp} className="flex justify-between items-end mb-16">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="flex justify-between items-end mb-16">
             <h2 className="text-2xl font-medium text-white flex items-center gap-2"><span>✨</span> Pengalaman Bekerja</h2>
             <span className="font-mono text-xs text-kexDim">( 04 Roles )</span>
           </motion.div>
 
-          <div className="space-y-20">
+          <div className="space-y-16">
             {/* Indomarco */}
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-50px' }} variants={fadeInUp} className="group grid grid-cols-1 lg:grid-cols-12 gap-8 items-start border-b border-kexBorder/50 pb-16">
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="group grid grid-cols-1 lg:grid-cols-12 gap-8 items-start border-b border-kexBorder/50 pb-12">
               <div className="lg:col-span-4">
                 <span className="font-mono text-xs text-kexDim block mb-2">( 01 ) — Feb 2025 – Feb 2026</span>
                 <h3 className="text-2xl text-white font-medium group-hover:text-kexMuted transition-colors">PT INDOMARCO PRISMATAMA</h3>
@@ -207,18 +188,18 @@ export default function Portfolio() {
               <div className="lg:col-span-8">
                 <TiltCard3D className="bg-kexCard border border-kexBorder p-6 sm:p-8 rounded-2xl">
                   <ul className="space-y-3 text-sm text-kexMuted font-light leading-relaxed">
-                    <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Mengelola kerapihan display (facing, penataan kategori, dan label harga) agar area jual selalu rapi dan menarik.</span></li>
+                    <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Mengelola kerapihan display (facing, penataan kategori, label harga) agar area jual selalu rapi dan menarik.</span></li>
                     <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Memastikan kelancaran restock dari gudang ke rak sehingga barang cepat tersedia untuk pelanggan.</span></li>
-                    <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Menangani penerimaan barang: bongkar muat, pengecekan jumlah & kondisi, serta penataan stok gudang agar mudah dicari.</span></li>
+                    <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Penerimaan barang: bongkar muat, pengecekan jumlah & kondisi, serta penataan stok gudang.</span></li>
                     <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Mengoperasikan kasir sesuai SOP (scan, pembayaran tunai/non-tunai, packing) untuk transaksi cepat dan akurat.</span></li>
-                    <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Memastikan manajemen kedaluwarsa (FIFO/FEFO), memisahkan barang expired/rusak, dan membantu proses retur bila diperlukan.</span></li>
+                    <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Manajemen kedaluwarsa (FIFO/FEFO), pemisahan barang expired/rusak, dan proses retur.</span></li>
                   </ul>
                 </TiltCard3D>
               </div>
             </motion.div>
 
             {/* BMC Motor */}
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-50px' }} variants={fadeInUp} className="group grid grid-cols-1 lg:grid-cols-12 gap-8 items-start border-b border-kexBorder/50 pb-16">
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="group grid grid-cols-1 lg:grid-cols-12 gap-8 items-start border-b border-kexBorder/50 pb-12">
               <div className="lg:col-span-4">
                 <span className="font-mono text-xs text-kexDim block mb-2">( 02 ) — Nov 2024 – Jan 2025</span>
                 <h3 className="text-2xl text-white font-medium group-hover:text-kexMuted transition-colors">BMC Motor</h3>
@@ -230,14 +211,14 @@ export default function Portfolio() {
                     <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Memastikan dokumen administrasi lengkap dan terorganisir.</span></li>
                     <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Memberikan informasi mengenai harga, durasi servis, dan ketersediaan sparepart kepada pelanggan.</span></li>
                     <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Membuat dan mengarsipkan invoice faktur penjualan & servis.</span></li>
-                    <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Mencatat transaksi harian, mingguan, dan bulanan terkait seluruh aktivitas operasional bengkel.</span></li>
+                    <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Mencatat transaksi harian, mingguan, dan bulanan terkait aktivitas bengkel.</span></li>
                   </ul>
                 </TiltCard3D>
               </div>
             </motion.div>
 
             {/* Mitra Metal Perkasa */}
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-50px' }} variants={fadeInUp} className="group grid grid-cols-1 lg:grid-cols-12 gap-8 items-start border-b border-kexBorder/50 pb-16">
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="group grid grid-cols-1 lg:grid-cols-12 gap-8 items-start border-b border-kexBorder/50 pb-12">
               <div className="lg:col-span-4">
                 <span className="font-mono text-xs text-kexDim block mb-2">( 03 ) — Jan 2023 – Agu 2024</span>
                 <h3 className="text-2xl text-white font-medium group-hover:text-kexMuted transition-colors">PT Mitra Metal Perkasa</h3>
@@ -246,17 +227,17 @@ export default function Portfolio() {
               <div className="lg:col-span-8">
                 <TiltCard3D className="bg-kexCard border border-kexBorder p-6 sm:p-8 rounded-2xl">
                   <ul className="space-y-3 text-sm text-kexMuted font-light leading-relaxed">
-                    <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Memastikan proses kerja yang dilakukan sudah sesuai dengan arahan saat briefing produksi.</span></li>
-                    <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Memastikan seluruh proses produksi berjalan sesuai SOP ketat yang berlaku di perusahaan.</span></li>
+                    <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Memastikan proses kerja sesuai arahan briefing produksi.</span></li>
+                    <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Memastikan proses produksi berjalan sesuai SOP perusahaan.</span></li>
                     <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Menjaga lingkungan kerja selalu rapi, bersih, dan aman (5S/5R).</span></li>
-                    <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Memastikan dan membuat laporan hasil kerja harian dengan akurat.</span></li>
+                    <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Membuat laporan hasil kerja harian dengan akurat.</span></li>
                   </ul>
                 </TiltCard3D>
               </div>
             </motion.div>
 
             {/* Restu Computer */}
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-50px' }} variants={fadeInUp} className="group grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="group grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
               <div className="lg:col-span-4">
                 <span className="font-mono text-xs text-kexDim block mb-2">( 04 ) — Nov 2021 – Feb 2022</span>
                 <h3 className="text-2xl text-white font-medium group-hover:text-kexMuted transition-colors">RESTU COMPUTER</h3>
@@ -265,9 +246,9 @@ export default function Portfolio() {
               <div className="lg:col-span-8">
                 <TiltCard3D className="bg-kexCard border border-kexBorder p-6 sm:p-8 rounded-2xl">
                   <ul className="space-y-3 text-sm text-kexMuted font-light leading-relaxed">
-                    <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Membongkar laptop dan PC serta memasang kembali komponen secara presisi setelah perbaikan.</span></li>
-                    <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Melakukan upgrade hardware untuk meningkatkan kapasitas dan performa laptop maupun PC.</span></li>
-                    <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Melakukan instalasi ulang Sistem Operasi (OS) dan software pendukung sesuai kebutuhan pengguna.</span></li>
+                    <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Bongkar pasang laptop dan PC untuk perbaikan komponen.</span></li>
+                    <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Upgrade hardware (RAM/Storage) untuk meningkatkan kapasitas & performa.</span></li>
+                    <li className="flex gap-3"><span className="text-white font-mono">•</span><span>Instalasi ulang Sistem Operasi (OS) dan software pendukung.</span></li>
                   </ul>
                 </TiltCard3D>
               </div>
@@ -277,12 +258,12 @@ export default function Portfolio() {
 
         {/* SKILLS */}
         <section id="skills" className="py-24 border-b border-kexBorder">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-50px' }} variants={fadeInUp} className="mb-16">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="mb-16">
             <span className="font-mono text-xs text-kexDim uppercase block mb-2">// CAPABILITIES & COMPETENCIES</span>
             <h2 className="text-2xl font-medium text-white">Keahlian Utama</h2>
           </motion.div>
 
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-50px' }} variants={stagger} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 font-mono text-xs">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 font-mono text-xs">
             <TiltCard3D className="p-6 bg-kexCard border border-kexBorder rounded-xl">
               <span className="text-kexDim block mb-2">01 / RETAIL & POS</span>
               <h4 className="text-white text-sm font-medium mb-2">Operasional Kasir & POS</h4>
@@ -318,7 +299,7 @@ export default function Portfolio() {
 
         {/* EDUCATION & ABOUT */}
         <section id="about" className="py-24 border-b border-kexBorder">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-50px' }} variants={fadeInUp} className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             <div className="lg:col-span-5">
               <span className="font-mono text-xs text-kexDim uppercase block mb-2">// EDUCATION</span>
               <h2 className="text-2xl text-white font-medium mb-4">Pendidikan Formal</h2>
@@ -339,4 +320,40 @@ export default function Portfolio() {
               </div>
             </div>
           </motion.div>
-       
+        </section>
+
+        {/* FOOTER */}
+        <footer id="contact" className="pt-24 pb-12">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}>
+            <span className="font-mono text-xs text-kexDim uppercase block mb-2">// CONTACT DETAILS</span>
+            <h2 className="text-3xl sm:text-5xl text-white font-medium mb-12 tracking-tight max-w-2xl">
+              Tertarik untuk berdiskusi atau bekerja sama?
+            </h2>
+
+            <div className="flex flex-col sm:flex-row gap-6 font-mono text-sm mb-24">
+              <a href="mailto:bayuandk4@gmail.com" className="px-6 py-4 bg-kexCard border border-kexBorder rounded-xl text-white hover:border-zinc-500 transition-colors flex items-center gap-3">
+                <span>✉</span> bayuandk4@gmail.com
+              </a>
+              <a href="https://wa.me/6287881820662" target="_blank" rel="noreferrer" className="px-6 py-4 bg-kexCard border border-kexBorder rounded-xl text-white hover:border-zinc-500 transition-colors flex items-center gap-3">
+                <span>💬</span> +62 878 8182 0662
+              </a>
+              <a href="https://linkedin.com/in/bayu-andika2003/" target="_blank" rel="noreferrer" className="px-6 py-4 bg-kexCard border border-kexBorder rounded-xl text-white hover:border-zinc-500 transition-colors flex items-center gap-3">
+                <span>🔗</span> LinkedIn Profile
+              </a>
+            </div>
+
+            <div className="pt-8 border-t border-kexBorder flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 font-mono text-xs text-kexDim">
+              <div>© 2026 BAYU ANDIKA. Magelang, Indonesia.</div>
+              <div className="flex gap-6">
+                <a href="#experience" className="hover:text-white transition-colors">Experience</a>
+                <a href="#skills" className="hover:text-white transition-colors">Skills</a>
+                <a href="#about" className="hover:text-white transition-colors">About</a>
+              </div>
+            </div>
+          </motion.div>
+        </footer>
+
+      </div>
+    </div>
+  );
+}
