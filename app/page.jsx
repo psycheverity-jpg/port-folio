@@ -1,263 +1,394 @@
-'use client';
+"use client";
 
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { useEffect, useState } from 'react';
-import Canvas3D from '../components/Canvas3D';
-import Preloader from '../components/Preloader';
-import CustomCursor from '../components/CustomCursor';
+import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 
-// --- MAIN PORTFOLIO PAGE ---
-export default function Portfolio() {
-  const [time, setTime] = useState('Loading clock...');
+/* ---------- data ---------- */
+const experience = [
+  {
+    role: "Store Crew Boy",
+    company: "Indomaret",
+    desc: "Operasional kasir, display & planogram, penerimaan barang, FIFO/FEFO di Yogyakarta.",
+    date: "Feb 2025 – Feb 2026",
+    color: "#7C5CFF",
+  },
+  {
+    role: "Admin",
+    company: "BMC Motor",
+    desc: "Administrasi bengkel, invoice, pencatatan transaksi & data servis kendaraan.",
+    date: "Nov 2024 – Jan 2025",
+    color: "#FFB13D",
+  },
+  {
+    role: "Operator Produksi",
+    company: "Mitra Metal Perkasa",
+    desc: "Mesin stamping press, kontrol kualitas sesuai toleransi, kepatuhan SOP produksi.",
+    date: "Jan 2023 – Agu 2024",
+    color: "#FF3D7F",
+  },
+  {
+    role: "IT Support Internship",
+    company: "Restu Computer",
+    desc: "Bongkar-pasang hardware, upgrade komponen, instalasi ulang OS & software.",
+    date: "Nov 2021 – Feb 2022",
+    color: "#3DFFB5",
+  },
+];
+
+const stats = [
+  { n: 4, label: "Industri berbeda dijalani" },
+  { n: 3, label: "Tahun pengalaman lapangan" },
+  { n: 1, label: "Proyek pribadi dibangun sendiri" },
+];
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 24, filter: "blur(6px)" },
+  show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
+};
+
+/* ---------- count-up hook ---------- */
+function useCountUp(target, start) {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    if (!start) return;
+    let cur = 0;
+    const step = Math.max(1, Math.ceil(target / 30));
+    const t = setInterval(() => {
+      cur += step;
+      if (cur >= target) {
+        cur = target;
+        clearInterval(t);
+      }
+      setVal(cur);
+    }, 35);
+    return () => clearInterval(t);
+  }, [start, target]);
+  return val;
+}
+
+function StatCard({ n, label }) {
+  const [inView, setInView] = useState(false);
+  const val = useCountUp(n, inView);
+  return (
+    <motion.div
+      className="stat-card"
+      variants={fadeUp}
+      onViewportEnter={() => setInView(true)}
+      whileHover={{ y: -3, borderColor: "#3DFFB5" }}
+    >
+      <div className="stat-num">{val}</div>
+      <div className="stat-lbl">{label}</div>
+    </motion.div>
+  );
+}
+
+/* ---------- 3D background (vanilla three.js, client-only) ---------- */
+function BackgroundCanvas() {
+  const canvasRef = useRef(null);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const now = new Date();
-      setTime(`▩ ${now.toDateString()} ${now.toLocaleTimeString()}`);
-    }, 1000);
-    return () => clearInterval(interval);
+    let renderer, scene, camera, ico, torus, particles, frameId;
+    let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0;
+
+    async function init() {
+      const THREE = await import("three");
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
+      camera.position.z = 9;
+
+      const colors = [0xff3d7f, 0x7c5cff, 0x3dd6ff, 0x3dffb5, 0xffb13d];
+
+      const icoGeo = new THREE.IcosahedronGeometry(2.6, 1);
+      const icoMat = new THREE.MeshBasicMaterial({ color: 0x7c5cff, wireframe: true, transparent: true, opacity: 0.45 });
+      ico = new THREE.Mesh(icoGeo, icoMat);
+      ico.position.set(2.4, 0.6, -2);
+      scene.add(ico);
+
+      const torusGeo = new THREE.TorusGeometry(1.6, 0.05, 16, 100);
+      const torusMat = new THREE.MeshBasicMaterial({ color: 0x3dd6ff, wireframe: true, transparent: true, opacity: 0.35 });
+      torus = new THREE.Mesh(torusGeo, torusMat);
+      torus.position.set(-3, -1, -3);
+      scene.add(torus);
+
+      const particleCount = 340;
+      const positions = new Float32Array(particleCount * 3);
+      const pColors = new Float32Array(particleCount * 3);
+      const c = new THREE.Color();
+      for (let i = 0; i < particleCount; i++) {
+        positions[i * 3] = (Math.random() - 0.5) * 22;
+        positions[i * 3 + 1] = (Math.random() - 0.5) * 14;
+        positions[i * 3 + 2] = (Math.random() - 0.5) * 12 - 2;
+        c.set(colors[Math.floor(Math.random() * colors.length)]);
+        pColors[i * 3] = c.r; pColors[i * 3 + 1] = c.g; pColors[i * 3 + 2] = c.b;
+      }
+      const pGeo = new THREE.BufferGeometry();
+      pGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+      pGeo.setAttribute("color", new THREE.BufferAttribute(pColors, 3));
+      const pMat = new THREE.PointsMaterial({ size: 0.045, vertexColors: true, transparent: true, opacity: 0.8 });
+      particles = new THREE.Points(pGeo, pMat);
+      scene.add(particles);
+
+      const onMouseMove = (e) => {
+        mouseX = e.clientX / window.innerWidth - 0.5;
+        mouseY = e.clientY / window.innerHeight - 0.5;
+      };
+      const onResize = () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      };
+      window.addEventListener("mousemove", onMouseMove);
+      window.addEventListener("resize", onResize);
+
+      function animate() {
+        frameId = requestAnimationFrame(animate);
+        ico.rotation.x += 0.0018; ico.rotation.y += 0.0026;
+        torus.rotation.x -= 0.0012; torus.rotation.y += 0.0016;
+        particles.rotation.y += 0.0004;
+        targetX += (mouseX - targetX) * 0.04;
+        targetY += (mouseY - targetY) * 0.04;
+        camera.position.x = targetX * 1.6;
+        camera.position.y = -targetY * 1.2;
+        camera.lookAt(scene.position);
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      return () => {
+        window.removeEventListener("mousemove", onMouseMove);
+        window.removeEventListener("resize", onResize);
+        cancelAnimationFrame(frameId);
+        renderer.dispose();
+      };
+    }
+
+    let cleanup;
+    init().then((fn) => (cleanup = fn));
+    return () => cleanup && cleanup();
   }, []);
 
-  // Parallax: background canvas drifts slower than the page as you scroll
-  const { scrollYProgress } = useScroll();
-  const canvasY = useTransform(scrollYProgress, [0, 1], ['0%', '25%']);
+  return <canvas ref={canvasRef} id="bgcanvas" />;
+}
 
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.19, 1, 0.22, 1] } },
+/* ---------- custom cursor ---------- */
+function CustomCursor() {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!window.matchMedia("(min-width:821px)").matches) return;
+    let cx = 0, cy = 0, tx = 0, ty = 0, raf;
+    const onMove = (e) => { tx = e.clientX; ty = e.clientY; };
+    window.addEventListener("mousemove", onMove);
+    function loop() {
+      cx += (tx - cx) * 0.2; cy += (ty - cy) * 0.2;
+      if (ref.current) ref.current.style.transform = `translate(${cx}px, ${cy}px) translate(-50%,-50%)`;
+      raf = requestAnimationFrame(loop);
+    }
+    loop();
+    const onEnter = () => ref.current && ref.current.classList.add("big");
+    const onLeave = () => ref.current && ref.current.classList.remove("big");
+    const targets = document.querySelectorAll("a,button");
+    targets.forEach((el) => { el.addEventListener("mouseenter", onEnter); el.addEventListener("mouseleave", onLeave); });
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      cancelAnimationFrame(raf);
+      targets.forEach((el) => { el.removeEventListener("mouseenter", onEnter); el.removeEventListener("mouseleave", onLeave); });
+    };
+  }, []);
+  return <div className="cursor" ref={ref} id="cursor" />;
+}
+
+/* ---------- tilt wrapper ---------- */
+function TiltCard({ children, className }) {
+  const ref = useRef(null);
+  const onMove = (e) => {
+    const r = ref.current.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    ref.current.style.transform = `perspective(600px) rotateY(${px * 6}deg) rotateX(${-py * 6}deg)`;
   };
-
-  const stagger = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.12 } },
-  };
-
-  const skills = [
-    { tag: '01 / RETAIL & POS', title: 'Operasional Kasir & POS', desc: 'Scan barcode, input item, void/retur sesuai prosedur, tutup kasir, dan setoran harian.' },
-    { tag: '02 / INVENTORY', title: 'Receiving & Planogram', desc: 'Penerimaan delivery, cek kondisi/expired (FIFO/FEFO), facing rak, dan penataan label harga.' },
-    { tag: '03 / IT SUPPORT', title: 'Hardware & OS Support', desc: 'Perakitan/pembongkaran PC & Laptop, upgrade RAM/Storage, dan instalasi ulang OS & software.' },
-    { tag: '04 / ADMINISTRATION', title: 'Data & Service Admin', desc: 'Input order, pengarsipan faktur/invoice, riwayat kendaraan, dan pembuatan laporan berkala.' },
-    { tag: '05 / PRODUCTION', title: 'Mesin Stamping Press', desc: 'Pengoperasian mesin stamping press (manual & otomatis) serta kontrol kualitas produk NG.' },
-    { tag: '06 / SOFTWARE', title: 'Office & Software', desc: 'Microsoft Word dasar untuk pembuatan dokumen laporan & kolaborasi teknis.' },
-  ];
-
-  const jobs = [
-    {
-      idx: '( 01 ) — Feb 2025 – Feb 2026',
-      company: 'PT INDOMARCO PRISMATAMA',
-      role: 'Store Crew Boy — Yogyakarta',
-      items: [
-        'Mengelola kerapihan display (facing, penataan kategori, label harga) agar area jual selalu rapi dan menarik.',
-        'Memastikan kelancaran restock dari gudang ke rak sehingga barang cepat tersedia untuk pelanggan.',
-        'Penerimaan barang: bongkar muat, pengecekan jumlah & kondisi, serta penataan stok gudang.',
-        'Mengoperasikan kasir sesuai SOP (scan, pembayaran tunai/non-tunai, packing) untuk transaksi cepat dan akurat.',
-        'Manajemen kedaluwarsa (FIFO/FEFO), pemisahan barang expired/rusak, dan proses retur.',
-      ],
-    },
-    {
-      idx: '( 02 ) — Nov 2024 – Jan 2025',
-      company: 'BMC Motor',
-      role: 'Admin — Yogyakarta',
-      items: [
-        'Memastikan dokumen administrasi lengkap dan terorganisir.',
-        'Memberikan informasi mengenai harga, durasi servis, dan ketersediaan sparepart kepada pelanggan.',
-        'Membuat dan mengarsipkan invoice faktur penjualan & servis.',
-        'Mencatat transaksi harian, mingguan, dan bulanan terkait aktivitas bengkel.',
-      ],
-    },
-    {
-      idx: '( 03 ) — Jan 2023 – Agu 2024',
-      company: 'PT Mitra Metal Perkasa',
-      role: 'Operator Produksi — Karawang',
-      items: [
-        'Memastikan proses kerja sesuai arahan briefing produksi.',
-        'Memastikan proses produksi berjalan sesuai SOP perusahaan.',
-        'Menjaga lingkungan kerja selalu rapi, bersih, dan aman (5S/5R).',
-        'Membuat laporan hasil kerja harian dengan akurat.',
-      ],
-    },
-    {
-      idx: '( 04 ) — Nov 2021 – Feb 2022',
-      company: 'RESTU COMPUTER',
-      role: 'IT Support Internship — Magelang',
-      items: [
-        'Bongkar pasang laptop dan PC untuk perbaikan komponen.',
-        'Upgrade hardware (RAM/Storage) untuk meningkatkan kapasitas & performa.',
-        'Instalasi ulang Sistem Operasi (OS) dan software pendukung.',
-      ],
-    },
-  ];
-
+  const onLeave = () => { if (ref.current) ref.current.style.transform = ""; };
   return (
-    <div className="relative min-h-screen bg-[#080808] text-[#f4f4f5] font-sans selection:bg-white selection:text-black overflow-hidden">
-      <Preloader />
+    <motion.div ref={ref} className={className} variants={fadeUp} onMouseMove={onMove} onMouseLeave={onLeave}>
+      {children}
+    </motion.div>
+  );
+}
+
+export default function Page() {
+  return (
+    <>
+      <BackgroundCanvas />
+      <div className="vignette" />
       <CustomCursor />
 
-      <motion.div style={{ y: canvasY }} className="fixed inset-0 z-0">
-        <Canvas3D />
-      </motion.div>
-
-      <div className="relative z-10 px-6 sm:px-12 md:px-24 py-8 max-w-[1600px] mx-auto">
-
-        {/* HEADER */}
-        <motion.header
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.3 }}
-          className="flex flex-col md:flex-row justify-between items-start md:items-center py-4 mb-24 font-mono text-xs tracking-tight text-kexMuted"
-        >
-          <div className="text-white uppercase tracking-widest font-medium">
-            BAYU ANDIKA <span className="text-kexDim normal-case tracking-normal">( IT & Operations )</span>
-          </div>
-          <nav className="flex gap-8 mt-4 md:mt-0">
-            {[
-              ['#experience', 'Experience ( 01 )'],
-              ['#skills', 'Skills ( 02 )'],
-              ['#about', 'About ( 03 )'],
-              ['#contact', 'Contact ( 04 )'],
-            ].map(([href, label]) => (
-              <a key={href} href={href} className="relative group">
-                <span className="group-hover:text-white transition-colors">{label}</span>
-                <span className="absolute left-0 -bottom-1 w-0 h-px bg-white transition-all duration-300 group-hover:w-full" />
-              </a>
-            ))}
+      <header>
+        <div className="wrap navrow">
+          <div className="counter">( <span className="dot" /> Terbuka Untuk Kerja ) – 2026</div>
+          <div className="brand">BAYU ANDIKA</div>
+          <nav>
+            <ul>
+              <li><a href="#work">Pengalaman</a></li>
+              <li><a href="#about">Tentang</a></li>
+              <li><a href="#project">Proyek</a></li>
+            </ul>
           </nav>
-        </motion.header>
+          <a className="cta-nav" href="mailto:bayuandk4@gmail.com">Hubungi</a>
+        </div>
+      </header>
 
-        {/* HERO SECTION */}
-        <motion.section variants={stagger} initial="hidden" animate="visible" transition={{ delayChildren: 1.4 }} className="pb-32 border-b border-kexBorder">
-          <motion.h1 variants={fadeInUp} className="text-5xl sm:text-7xl md:text-[6.5rem] font-medium leading-[1.02] tracking-tighter text-white mb-14">
-            Managing <span className="text-kexDim italic font-light">( retail ops )</span>,{' '}
-            <span className="text-kexDim italic font-light">( hardware )</span>, <br className="hidden md:block" />
-            <span className="text-kexDim italic font-light">( administration )</span> &{' '}
-            <span className="text-kexDim italic font-light">( production SOP )</span>
+      <div className="wrap">
+        <section className="hero" style={{ borderTop: "none" }}>
+          <motion.div className="hero-eyebrow" initial="hidden" animate="show" variants={fadeUp}>
+            Profil Kerja · Magelang, Indonesia
+          </motion.div>
+          <motion.h1 className="megatitle" initial="hidden" animate="show" variants={fadeUp} transition={{ delay: 0.1 }}>
+            Siap Kerja<br /><span className="grad">Di Mana Saja.</span>
           </motion.h1>
-
-          <motion.div variants={fadeInUp} className="flex flex-wrap gap-3 font-mono text-[11px] text-kexMuted">
-            <div className="border border-kexBorder px-4 py-2 rounded-full bg-kexCard text-white">{time}</div>
-            <div className="border border-kexBorder px-4 py-2 rounded-full">Magelang, Jawa Tengah</div>
-            <div className="border border-kexBorder px-4 py-2 rounded-full text-white flex items-center gap-2 bg-kexCard">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-              Software Engineering Alumnus
-            </div>
-          </motion.div>
-        </motion.section>
-
-        {/* WORK EXPERIENCE — flat, no cards */}
-        <section id="experience" className="py-32 sm:py-40 border-b border-kexBorder">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="flex justify-between items-end mb-24">
-            <h2 className="text-3xl font-medium text-white flex items-center gap-2"><span>✨</span> Pengalaman Bekerja</h2>
-            <span className="font-mono text-xs text-kexDim">( 04 Roles )</span>
+          <motion.p className="hero-sub" initial="hidden" animate="show" variants={fadeUp} transition={{ delay: 0.2 }}>
+            Tenaga kerja serbaguna dengan rekam jejak nyata di operasional toko, administrasi,
+            produksi manufaktur, dan dukungan teknis IT — disiplin SOP, cepat beradaptasi.
+          </motion.p>
+          <motion.div className="hero-ctas" initial="hidden" animate="show" variants={fadeUp} transition={{ delay: 0.3 }}>
+            <a className="btn-glow" href="#work">Lihat Pengalaman</a>
+            <a className="btn-ghost" href="mailto:bayuandk4@gmail.com">Hubungi Saya</a>
           </motion.div>
 
-          <div>
-            {jobs.map((job, i) => (
-              <motion.div
-                key={job.company}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeInUp}
-                className={`group grid grid-cols-1 lg:grid-cols-12 gap-8 items-start py-14 ${i !== 0 ? 'border-t border-kexBorder' : ''}`}
-              >
-                <div className="lg:col-span-4">
-                  <span className="font-mono text-xs text-kexDim block mb-2">{job.idx}</span>
-                  <h3 className="text-2xl text-white font-medium group-hover:text-kexMuted transition-colors">{job.company}</h3>
-                  <p className="font-mono text-sm text-kexMuted mt-1">{job.role}</p>
-                </div>
-                <div className="lg:col-span-8">
-                  <ul className="space-y-3 text-sm text-kexMuted font-light leading-relaxed">
-                    {job.items.map((it) => (
-                      <li key={it} className="flex gap-3"><span className="text-white font-mono">•</span><span>{it}</span></li>
-                    ))}
-                  </ul>
-                </div>
-              </motion.div>
-            ))}
+          <motion.div
+            className="stat-strip"
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ staggerChildren: 0.1 }}
+          >
+            {stats.map((s) => <StatCard key={s.label} n={s.n} label={s.label} />)}
+          </motion.div>
+        </section>
+
+        <section id="work">
+          <div className="sec-head">
+            <h2>Riwayat Kerja</h2>
+            <a href="mailto:bayuandk4@gmail.com">Hubungi Saya →</a>
           </div>
-        </section>
-
-        {/* SKILLS — flat list, single column, no cards */}
-        <section id="skills" className="py-32 sm:py-40 border-b border-kexBorder">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="mb-24">
-            <span className="font-mono text-xs text-kexDim uppercase block mb-2">// CAPABILITIES & COMPETENCIES</span>
-            <h2 className="text-3xl font-medium text-white">Keahlian Utama</h2>
-          </motion.div>
-
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="max-w-3xl">
-            {skills.map((s, i) => (
-              <motion.div
-                key={s.tag}
-                variants={fadeInUp}
-                className={`py-8 grid grid-cols-1 sm:grid-cols-[140px_1fr] gap-2 sm:gap-8 font-mono text-xs ${i !== 0 ? 'border-t border-kexBorder' : ''}`}
-              >
-                <span className="text-kexDim">{s.tag}</span>
+          <motion.div initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.15 }} transition={{ staggerChildren: 0.08 }}>
+            {experience.map((job) => (
+              <TiltCard className="work-item" key={job.role}>
+                <div className="work-thumb" style={{ background: `linear-gradient(150deg, ${job.color}, #07070C)` }} />
                 <div>
-                  <h4 className="text-white text-base font-medium mb-2 font-sans">{s.title}</h4>
-                  <p className="text-kexMuted leading-relaxed">{s.desc}</p>
+                  <div className="work-title">{job.role} — {job.company}</div>
+                  <div className="work-desc">{job.desc}</div>
                 </div>
-              </motion.div>
+                <div className="work-tag">{job.date}</div>
+              </TiltCard>
             ))}
           </motion.div>
         </section>
 
-        {/* EDUCATION & ABOUT — flat */}
-        <section id="about" className="py-32 sm:py-40 border-b border-kexBorder">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-            <div className="lg:col-span-5">
-              <span className="font-mono text-xs text-kexDim uppercase block mb-2">// EDUCATION</span>
-              <h2 className="text-3xl text-white font-medium mb-8">Pendidikan Formal</h2>
-              <div className="border-t border-kexBorder pt-6 font-mono text-xs">
-                <span className="text-kexDim block mb-1">Jul 2019 – Jun 2022</span>
-                <h3 className="text-white text-sm font-medium">SMK MUHAMMADIYAH 1 MUNTILAN</h3>
-                <p className="text-kexMuted mt-2">Jurusan: Rekayasa Perangkat Lunak (RPL)</p>
-                <p className="text-kexDim mt-1">Magelang, Jawa Tengah</p>
-              </div>
-            </div>
-            <div className="lg:col-span-7 flex flex-col justify-between">
+        <section id="about">
+          <div className="sec-head"><h2>Tentang Saya</h2></div>
+          <motion.div className="about-panel" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.3 }} variants={fadeUp}>
+            <p className="about-text">
+              <b>Bayu</b> adalah lulusan Rekayasa Perangkat Lunak dari Magelang yang sudah terjun langsung
+              ke berbagai bidang kerja — dari lini produksi manufaktur, meja admin bengkel, garda depan
+              toko ritel, hingga proyek pribadi di bidang web. Terbiasa bekerja sesuai standar dan
+              prosedur yang ketat, disiplin menjaga kerapian kerja, dan cepat beradaptasi di lingkungan
+              kerja baru. Terbuka untuk peran operasional, administratif, produksi, maupun teknis.
+            </p>
+            <a className="about-link" href="mailto:bayuandk4@gmail.com">Hubungi via email →</a>
+          </motion.div>
+        </section>
+
+        <section id="project">
+          <div className="sec-head"><h2>Proyek Pribadi</h2></div>
+          <motion.div className="proj-panel" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }} variants={fadeUp}>
+            <div className="proj-grid">
+              <a className="proj-mock" href="https://bayz44.github.io/V-Forge/" target="_blank" rel="noopener" aria-label="Coba demo V-Forge">
+                <span>▶</span>
+              </a>
               <div>
-                <span className="font-mono text-xs text-kexDim uppercase block mb-2">// SUMMARY</span>
-                <h2 className="text-3xl text-white font-medium mb-8">Ringkasan Profil</h2>
-                <p className="text-kexMuted font-light leading-relaxed text-lg">
-                  Lulusan Rekayasa Perangkat Lunak dengan pengalaman kerja yang luas di bidang operasional ritel, administrasi data, produksi industri, serta IT support teknis. Memiliki disiplin tinggi terhadap SOP perusahaan, akurasi transaksi kasir/POS, serta keterampilan hardware dan software komputer.
+                <div className="proj-kicker">Personal Project · PWA · v8.2.1</div>
+                <div className="proj-title">V-Forge</div>
+                <div className="proj-sub">Web-Based Video Editor</div>
+                <p className="proj-desc">
+                  Dibangun dari nol memakai HTML5, CSS3, dan JavaScript murni tanpa framework, dengan
+                  Firebase untuk autentikasi &amp; penyimpanan data proyek.
                 </p>
+                <p className="proj-desc">
+                  Import &amp; edit video, ekspor lewat Canvas/Web Audio/MediaRecorder — lengkap fitur
+                  premium 4K, 120 FPS, dan Hi-Res Audio.
+                </p>
+                <div className="proj-tags">
+                  {["HTML5", "CSS3", "JavaScript", "Firebase", "PWA", "Service Worker"].map((t) => (
+                    <span key={t}>{t}</span>
+                  ))}
+                </div>
+                <div className="proj-ctas">
+                  <a className="btn-glow" href="https://bayz44.github.io/V-Forge/" target="_blank" rel="noopener">▶ Coba Demo</a>
+                  <a className="btn-ghost" href="https://github.com/bayz-dik/V-Forge" target="_blank" rel="noopener">↗ Repository</a>
+                </div>
               </div>
             </div>
           </motion.div>
         </section>
 
-        {/* FOOTER */}
-        <footer id="contact" className="pt-32 sm:pt-40 pb-12">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}>
-            <span className="font-mono text-xs text-kexDim uppercase block mb-2">// CONTACT DETAILS</span>
-            <h2 className="text-4xl sm:text-6xl text-white font-medium mb-14 tracking-tight max-w-2xl">
-              Tertarik untuk berdiskusi atau bekerja sama?
-            </h2>
-
-            <div className="flex flex-col sm:flex-row gap-6 font-mono text-sm mb-28">
-              <a href="mailto:bayuandk4@gmail.com" className="px-6 py-4 border border-kexBorder rounded-full text-white hover:border-white transition-colors flex items-center gap-3 w-fit">
-                <span>✉</span> bayuandk4@gmail.com
-              </a>
-              <a href="https://wa.me/6287881820662" target="_blank" rel="noreferrer" className="px-6 py-4 border border-kexBorder rounded-full text-white hover:border-white transition-colors flex items-center gap-3 w-fit">
-                <span>💬</span> +62 878 8182 0662
-              </a>
-              <a href="https://linkedin.com/in/bayu-andika2003/" target="_blank" rel="noreferrer" className="px-6 py-4 border border-kexBorder rounded-full text-white hover:border-white transition-colors flex items-center gap-3 w-fit">
-                <span>🔗</span> LinkedIn Profile
-              </a>
-            </div>
-
-            <div className="pt-8 border-t border-kexBorder flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 font-mono text-xs text-kexDim">
-              <div>© 2026 BAYU ANDIKA. Magelang, Indonesia.</div>
-              <div className="flex gap-6">
-                <a href="#experience" className="hover:text-white transition-colors">Experience</a>
-                <a href="#skills" className="hover:text-white transition-colors">Skills</a>
-                <a href="#about" className="hover:text-white transition-colors">About</a>
-              </div>
-            </div>
+        <section>
+          <motion.div
+            className="info-grid"
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ staggerChildren: 0.08 }}
+          >
+            {[
+              { ic: "🧰", h: "Pengalaman", p: "Operasional Ritel, Administrasi Bengkel, Produksi Manufaktur, Dukungan IT" },
+              { ic: "🏭", h: "Industri", p: "Ritel & Retail, Otomotif, Manufaktur, Teknologi" },
+              { ic: "🎓", h: "Pendidikan", p: "SMK, Rekayasa Perangkat Lunak, 2019 – 2022" },
+              { ic: "⚡", h: "Kemampuan", p: "Operasional & SOP, Administrasi, Kontrol Kualitas, HTML/CSS/JS + Firebase" },
+            ].map((col) => (
+              <motion.div className="info-col" key={col.h} variants={fadeUp} whileHover={{ y: -4 }}>
+                <div className="ic">{col.ic}</div>
+                <h4>{col.h}</h4>
+                <p>{col.p.split(", ").join(",\n")}</p>
+              </motion.div>
+            ))}
           </motion.div>
-        </footer>
 
+          <motion.div
+            className="cta-row"
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.4 }}
+            variants={fadeUp}
+          >
+            <p>Terbuka untuk peluang kerja baru — Mari terhubung dan berkolaborasi.</p>
+            <a className="cta-arrow" href="mailto:bayuandk4@gmail.com">↗</a>
+          </motion.div>
+        </section>
       </div>
-    </div>
+
+      <footer>
+        <div className="wrap">
+          <div className="foot-nav">
+            <a href="#work">Pengalaman</a>
+            <a href="#about">Tentang</a>
+            <a href="#project">Proyek</a>
+          </div>
+          <div className="foot-row">
+            <div className="foot-social">
+              <a href="https://linkedin.com/in/bayu-andika2003/" target="_blank" rel="noopener">LinkedIn</a>
+              <a href="https://github.com/bayz-dik" target="_blank" rel="noopener">GitHub</a>
+              <a href="tel:+6287881820662">Telepon</a>
+            </div>
+            <div className="foot-copy">© 2026 Bayu Andika</div>
+          </div>
+        </div>
+      </footer>
+    </>
   );
 }
