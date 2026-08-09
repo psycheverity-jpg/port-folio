@@ -1,109 +1,11 @@
 'use client';
 
-import { motion, useMotionValue, useTransform } from 'framer-motion';
-import { useEffect, useState, useRef } from 'react';
-
-// --- BACKGROUND CANVAS 3D ---
-function Canvas3D() {
-  const canvasRef = useRef(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let animationFrameId;
-
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
-
-    const handleResize = () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-    };
-    window.addEventListener('resize', handleResize);
-
-    const points = Array.from({ length: 35 }, () => ({
-      x: (Math.random() - 0.5) * width,
-      y: (Math.random() - 0.5) * height,
-      z: (Math.random() - 0.5) * 350,
-      vx: (Math.random() - 0.5) * 0.4,
-      vy: (Math.random() - 0.5) * 0.4,
-      vz: (Math.random() - 0.5) * 0.4,
-    }));
-
-    const render = () => {
-      ctx.clearRect(0, 0, width, height);
-      const fov = 300;
-      const cx = width / 2;
-      const cy = height / 2;
-
-      points.forEach((p) => {
-        p.x += p.vx; p.y += p.vy; p.z += p.vz;
-        if (Math.abs(p.x) > width / 1.5) p.vx *= -1;
-        if (Math.abs(p.y) > height / 1.5) p.vy *= -1;
-        if (Math.abs(p.z) > 300) p.vz *= -1;
-
-        const scale = fov / (fov + p.z + 300);
-        ctx.beginPath();
-        ctx.arc(p.x * scale + cx, p.y * scale + cy, 1.5 * scale, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${0.15 * scale})`;
-        ctx.fill();
-      });
-
-      for (let i = 0; i < points.length; i++) {
-        for (let j = i + 1; j < points.length; j++) {
-          const dx = points[i].x - points[j].x;
-          const dy = points[i].y - points[j].y;
-          const dz = points[i].z - points[j].z;
-          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-          if (dist < 150) {
-            const s1 = fov / (fov + points[i].z + 300);
-            const s2 = fov / (fov + points[j].z + 300);
-            ctx.beginPath();
-            ctx.moveTo(points[i].x * s1 + cx, points[i].y * s1 + cy);
-            ctx.lineTo(points[j].x * s2 + cx, points[j].y * s2 + cy);
-            ctx.strokeStyle = `rgba(255, 255, 255, ${0.05 * (1 - dist / 150)})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        }
-      }
-      animationFrameId = requestAnimationFrame(render);
-    };
-
-    render();
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, []);
-
-  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-50" />;
-}
-
-// --- 3D TILT CARD EFFECT ---
-function TiltCard3D({ children, className = '' }) {
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const rotateX = useTransform(y, [-80, 80], [6, -6]);
-  const rotateY = useTransform(x, [-80, 80], [-6, 6]);
-
-  return (
-    <motion.div
-      style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
-      onMouseMove={(e) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        x.set(e.clientX - (rect.left + rect.width / 2));
-        y.set(e.clientY - (rect.top + rect.height / 2));
-      }}
-      onMouseLeave={() => { x.set(0); y.set(0); }}
-      className={`transition-transform duration-200 ease-out ${className}`}
-    >
-      <div style={{ transform: 'translateZ(10px)' }}>{children}</div>
-    </motion.div>
-  );
-}
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import Canvas3D from '../components/Canvas3D';
+import TiltCard3D from '../components/TiltCard3D';
+import Preloader from '../components/Preloader';
+import CustomCursor from '../components/CustomCursor';
 
 // --- MAIN PORTFOLIO PAGE ---
 export default function Portfolio() {
@@ -117,6 +19,10 @@ export default function Portfolio() {
     return () => clearInterval(interval);
   }, []);
 
+  // Parallax: background canvas drifts slower than the page as you scroll
+  const { scrollYProgress } = useScroll();
+  const canvasY = useTransform(scrollYProgress, [0, 1], ['0%', '25%']);
+
   const fadeInUp = {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.19, 1, 0.22, 1] } },
@@ -129,15 +35,20 @@ export default function Portfolio() {
 
   return (
     <div className="relative min-h-screen bg-[#080808] text-[#f4f4f5] font-sans selection:bg-white selection:text-black overflow-hidden">
-      <Canvas3D />
+      <Preloader />
+      <CustomCursor />
+
+      <motion.div style={{ y: canvasY }} className="fixed inset-0 z-0">
+        <Canvas3D />
+      </motion.div>
 
       <div className="relative z-10 px-6 sm:px-12 md:px-24 py-8 max-w-[1600px] mx-auto">
-        
+
         {/* HEADER */}
         <motion.header
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.8, delay: 1.3 }}
           className="flex flex-col md:flex-row justify-between items-start md:items-center py-4 mb-20 font-mono text-xs tracking-tight text-kexMuted"
         >
           <div className="text-white uppercase tracking-widest font-medium">
@@ -152,7 +63,7 @@ export default function Portfolio() {
         </motion.header>
 
         {/* HERO SECTION */}
-        <motion.section variants={stagger} initial="hidden" animate="visible" className="pb-24 border-b border-kexBorder">
+        <motion.section variants={stagger} initial="hidden" animate="visible" transition={{ delayChildren: 1.4 }} className="pb-24 border-b border-kexBorder">
           <motion.h1 variants={fadeInUp} className="text-4xl sm:text-6xl md:text-[5rem] font-medium leading-[1.08] tracking-tight text-white mb-12">
             Managing <span className="text-kexDim italic font-light">( retail ops )</span>,{' '}
             <span className="text-kexDim italic font-light">( hardware )</span>, <br className="hidden md:block" />
