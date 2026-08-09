@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import Canvas3D from "./Canvas3D";
 
 /* ---------- data ---------- */
 const experience = [
@@ -82,100 +83,6 @@ function StatCard({ n, label }) {
   );
 }
 
-/* ---------- 3D background (vanilla three.js, client-only) ---------- */
-function BackgroundCanvas() {
-  const canvasRef = useRef(null);
-
-  useEffect(() => {
-    let renderer, scene, camera, ico, torus, particles, frameId;
-    let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0;
-
-    async function init() {
-      const THREE = await import("three");
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-
-      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.setSize(window.innerWidth, window.innerHeight);
-
-      scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
-      camera.position.z = 9;
-
-      const colors = [0xff3d7f, 0x7c5cff, 0x3dd6ff, 0x3dffb5, 0xffb13d];
-
-      const icoGeo = new THREE.IcosahedronGeometry(2.6, 1);
-      const icoMat = new THREE.MeshBasicMaterial({ color: 0x7c5cff, wireframe: true, transparent: true, opacity: 0.45 });
-      ico = new THREE.Mesh(icoGeo, icoMat);
-      ico.position.set(2.4, 0.6, -2);
-      scene.add(ico);
-
-      const torusGeo = new THREE.TorusGeometry(1.6, 0.05, 16, 100);
-      const torusMat = new THREE.MeshBasicMaterial({ color: 0x3dd6ff, wireframe: true, transparent: true, opacity: 0.35 });
-      torus = new THREE.Mesh(torusGeo, torusMat);
-      torus.position.set(-3, -1, -3);
-      scene.add(torus);
-
-      const particleCount = 340;
-      const positions = new Float32Array(particleCount * 3);
-      const pColors = new Float32Array(particleCount * 3);
-      const c = new THREE.Color();
-      for (let i = 0; i < particleCount; i++) {
-        positions[i * 3] = (Math.random() - 0.5) * 22;
-        positions[i * 3 + 1] = (Math.random() - 0.5) * 14;
-        positions[i * 3 + 2] = (Math.random() - 0.5) * 12 - 2;
-        c.set(colors[Math.floor(Math.random() * colors.length)]);
-        pColors[i * 3] = c.r; pColors[i * 3 + 1] = c.g; pColors[i * 3 + 2] = c.b;
-      }
-      const pGeo = new THREE.BufferGeometry();
-      pGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-      pGeo.setAttribute("color", new THREE.BufferAttribute(pColors, 3));
-      const pMat = new THREE.PointsMaterial({ size: 0.045, vertexColors: true, transparent: true, opacity: 0.8 });
-      particles = new THREE.Points(pGeo, pMat);
-      scene.add(particles);
-
-      const onMouseMove = (e) => {
-        mouseX = e.clientX / window.innerWidth - 0.5;
-        mouseY = e.clientY / window.innerHeight - 0.5;
-      };
-      const onResize = () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      };
-      window.addEventListener("mousemove", onMouseMove);
-      window.addEventListener("resize", onResize);
-
-      function animate() {
-        frameId = requestAnimationFrame(animate);
-        ico.rotation.x += 0.0018; ico.rotation.y += 0.0026;
-        torus.rotation.x -= 0.0012; torus.rotation.y += 0.0016;
-        particles.rotation.y += 0.0004;
-        targetX += (mouseX - targetX) * 0.04;
-        targetY += (mouseY - targetY) * 0.04;
-        camera.position.x = targetX * 1.6;
-        camera.position.y = -targetY * 1.2;
-        camera.lookAt(scene.position);
-        renderer.render(scene, camera);
-      }
-      animate();
-
-      return () => {
-        window.removeEventListener("mousemove", onMouseMove);
-        window.removeEventListener("resize", onResize);
-        cancelAnimationFrame(frameId);
-        renderer.dispose();
-      };
-    }
-
-    let cleanup;
-    init().then((fn) => (cleanup = fn));
-    return () => cleanup && cleanup();
-  }, []);
-
-  return <canvas ref={canvasRef} id="bgcanvas" />;
-}
 
 /* ---------- custom cursor ---------- */
 function CustomCursor() {
@@ -224,7 +131,7 @@ function TiltCard({ children, className }) {
 export default function Page() {
   return (
     <>
-      <BackgroundCanvas />
+      <Canvas3D />
       <div className="vignette" />
       <CustomCursor />
 
