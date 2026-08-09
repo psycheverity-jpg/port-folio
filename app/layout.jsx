@@ -1,4 +1,5 @@
 import './globals.css'
+import SmoothScroll from '../components/SmoothScroll'
 
 export const metadata = {
   title: 'Bayu Andika - IT & Operations',
@@ -13,8 +14,9 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
       </head>
-      <body>{children}</body>
+      <body className="md:cursor-none">
+        <SmoothScroll>{children}</SmoothScroll>
+      </body>
     </html>
   )
 }
-
